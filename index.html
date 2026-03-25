@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karur Emergency Ambulance Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --red: #e63946;
+      --red-dark: #c1121f;
+      --red-light: #ff6b7a;
+      --red-glow: rgba(230, 57, 70, 0.25);
+      --green: #2d9d6b;
+      --green-light: #4cc98b;
+      --green-glow: rgba(45, 157, 107, 0.25);
+      --amber: #f4a261;
+      --amber-glow: rgba(244, 162, 97, 0.25);
+      --bg: #0a0b0f;
+      --bg2: #111318;
+      --bg3: #181b22;
+      --bg4: #1e2230;
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.14);
+      --text: #f0f2f8;
+      --text-muted: #8890a8;
+      --text-dim: #4a5170;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 32px rgba(0,0,0,0.5);
+      --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+    #root { height: 100%; }
+    ::selection { background: var(--red); color: #fff; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg2); } ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+    /* ── LAYOUT ── */
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── LANDING ── */
+    .landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; position: relative; overflow: hidden; }
+    .landing-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(230,57,70,0.12) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 80% 80%, rgba(45,157,107,0.07) 0%, transparent 50%); pointer-events: none; }
+    .landing-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.4; pointer-events: none; }
+    .landing-inner { position: relative; z-index: 1; max-width: 520px; width: 100%; animation: fadeUp 0.6s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .brand-icon { width: 48px; height: 48px; background: var(--red); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 24px var(--red-glow); flex-shrink: 0; }
+    .brand-text h1 { font-family: var(--font-head); font-size: 20px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
+    .brand-text span { font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
+
+    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; }
+    .card-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .card-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
+
+    .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .role-btn { padding: 20px 16px; border: 1px solid var(--border); background: var(--bg3); border-radius: var(--radius); cursor: pointer; transition: var(--transition); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text); }
+    .role-btn:hover { border-color: var(--red); background: rgba(230,57,70,0.07); transform: translateY(-2px); }
+    .role-btn .icon { font-size: 28px; }
+    .role-btn .label { font-family: var(--font-head); font-size: 14px; font-weight: 700; }
+    .role-btn .desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+    /* ── FORMS ── */
+    .form-header { margin-bottom: 24px; }
+    .form-header h2 { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .form-header p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .field input { width: 100%; padding: 11px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-body); font-size: 14px; transition: var(--transition); outline: none; }
+    .field input:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-glow); }
+    .field input::placeholder { color: var(--text-dim); }
+    .field input.prefix { padding-left: 46px; }
+    .prefix-wrap { position: relative; }
+    .prefix-wrap .prefix-label { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); pointer-events: none; }
+
+    .otp-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+    .otp-cell { padding: 14px 0; text-align: center; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 20px; font-weight: 700; font-family: var(--font-head); letter-spacing: 2px; width: 100%; transition: var(--transition); outline: none; }
+    .otp-cell:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-glow); }
+
+    .btn { width: 100%; padding: 13px 20px; border: none; border-radius: var(--radius-sm); font-family: var(--font-head); font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--transition); letter-spacing: 0.3px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: var(--red); color: #fff; box-shadow: 0 4px 16px var(--red-glow); }
+    .btn-primary:hover:not(:disabled) { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 6px 24px var(--red-glow); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 10px; }
+    .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+    .btn-green { background: var(--green); color: #fff; box-shadow: 0 4px 16px var(--green-glow); }
+    .btn-green:hover:not(:disabled) { background: #227a53; transform: translateY(-1px); }
+    .btn-green:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: 8px 14px; font-size: 12px; width: auto; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-bottom: 20px; transition: var(--transition); background: none; border: none; padding: 0; }
+    .back-link:hover { color: var(--text); }
+
+    .mock-note { background: rgba(244,162,97,0.08); border: 1px solid rgba(244,162,97,0.25); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--amber); margin-top: 14px; line-height: 1.5; }
+
+    /* ── DASHBOARD SHELL ── */
+    .dashboard { display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; }
+    .topbar-brand .icon { width: 32px; height: 32px; background: var(--red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .topbar-brand .name { font-family: var(--font-head); font-size: 15px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-user { font-size: 13px; color: var(--text-muted); }
+    .topbar-user strong { color: var(--text); }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+    .status-dot.available { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse-green 2s infinite; }
+    .status-dot.busy { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+    .status-dot.offline { background: var(--text-dim); }
+    @keyframes pulse-green { 0%,100%{box-shadow:0 0 6px var(--green)} 50%{box-shadow:0 0 12px var(--green)} }
+
+    .status-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+    .status-badge.available { background: rgba(45,157,107,0.15); color: var(--green-light); border: 1px solid rgba(45,157,107,0.3); }
+    .status-badge.busy { background: rgba(244,162,97,0.15); color: var(--amber); border: 1px solid rgba(244,162,97,0.3); }
+    .status-badge.offline { background: rgba(74,81,112,0.2); color: var(--text-dim); border: 1px solid rgba(74,81,112,0.3); }
+
+    .dash-content { flex: 1; display: grid; grid-template-columns: 320px 1fr; overflow: hidden; height: calc(100vh - 56px); }
+    .dash-sidebar { background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; gap: 0; }
+    .dash-map { background: var(--bg3); position: relative; }
+
+    .sidebar-section { padding: 16px; border-bottom: 1px solid var(--border); }
+    .sidebar-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin-bottom: 12px; }
+
+    /* ── MAP MOCK ── */
+    .map-mock { width: 100%; height: 100%; background: #0e1520; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .map-grid-lines { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 40px 40px; }
+    .map-roads { position: absolute; inset: 0; }
+    .map-label { position: absolute; font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    .map-center-marker { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+    .map-pulse { width: 16px; height: 16px; background: var(--red); border-radius: 50%; position: relative; margin: 0 auto; }
+    .map-pulse::before { content:''; position: absolute; inset: -6px; border: 2px solid var(--red); border-radius: 50%; animation: pulse-ring 1.5s infinite; opacity: 0.5; }
+    @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.5} 100%{transform:scale(2.5);opacity:0} }
+    .map-center-label { font-size: 12px; font-weight: 700; color: var(--text); margin-top: 6px; font-family: var(--font-head); }
+
+    .amb-marker { position: absolute; cursor: pointer; transform: translate(-50%,-50%); }
+    .amb-marker .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; transition: var(--transition); }
+    .amb-marker .dot.available { background: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+    .amb-marker .dot.busy { background: var(--amber); }
+    .amb-marker .tooltip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 11px; white-space: nowrap; pointer-events: none; opacity: 0; transition: var(--transition); }
+    .amb-marker:hover .tooltip { opacity: 1; }
+
+    /* ── ALERT CARD ── */
+    .alert-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; animation: slideIn 0.3s ease both; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+    .alert-card.sos { border-color: var(--red); background: rgba(230,57,70,0.05); }
+    .alert-card .alert-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .alert-card .alert-name { font-weight: 600; font-size: 14px; }
+    .alert-card .alert-time { font-size: 11px; color: var(--text-muted); }
+    .alert-card .alert-loc { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+    .alert-card .alert-actions { display: flex; gap: 8px; }
+    .btn-accept { background: var(--green); color: #fff; padding: 7px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); font-family: var(--font-head); }
+    .btn-accept:hover { background: #227a53; }
+    .btn-reject { background: transparent; color: var(--text-muted); padding: 7px 14px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: var(--transition); font-family: var(--font-head); }
+    .btn-reject:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── SOS BUTTON ── */
+    .sos-section { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .sos-btn { width: 140px; height: 140px; border-radius: 50%; background: var(--red); border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-head); font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 1px; box-shadow: 0 0 0 0 var(--red-glow); transition: var(--transition); position: relative; }
+    .sos-btn::before { content:''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid rgba(230,57,70,0.3); animation: sos-ring 2s infinite; }
+    .sos-btn::after { content:''; position: absolute; inset: -20px; border-radius: 50%; border: 1px solid rgba(230,57,70,0.15); animation: sos-ring 2s infinite 0.4s; }
+    @keyframes sos-ring { 0%{transform:scale(1);opacity:1} 100%{transform:scale(1.3);opacity:0} }
+    .sos-btn:hover { background: var(--red-dark); transform: scale(1.04); }
+    .sos-btn:active { transform: scale(0.97); }
+    .sos-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sos-icon { font-size: 28px; }
+
+    .sos-status-box { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 18px; width: 100%; }
+    .sos-status-box.sent { border-color: var(--red); background: rgba(230,57,70,0.06); animation: slideIn 0.3s ease; }
+    .sos-status-box.accepted { border-color: var(--green); background: rgba(45,157,107,0.06); }
+
+    /* ── DRIVER LIST ── */
+    .driver-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .driver-item:last-child { border-bottom: none; }
+    .driver-avatar { width: 34px; height: 34px; background: var(--bg4); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .driver-info { flex: 1; }
+    .driver-name { font-size: 13px; font-weight: 600; }
+    .driver-amb { font-size: 11px; color: var(--text-muted); }
+
+    /* ── TOASTS ── */
+    .toast-container { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; min-width: 280px; max-width: 360px; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 10px; animation: toastIn 0.3s ease both; pointer-events: all; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut { to{opacity:0;transform:translateX(20px)} }
+    .toast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .toast-body { flex: 1; }
+    .toast-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .toast-msg { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .toast.success { border-color: rgba(45,157,107,0.3); }
+    .toast.error { border-color: rgba(230,57,70,0.3); }
+    .toast.warning { border-color: rgba(244,162,97,0.3); }
+    .toast.info { border-color: rgba(100,120,200,0.3); }
+    .toast-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 0; line-height: 1; flex-shrink: 0; }
+
+    /* ── LOADING ── */
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .full-loader { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 40px; color: var(--text-muted); font-size: 14px; }
+
+    /* ── STATUS CONTROLS (driver) ── */
+    .status-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .status-ctrl { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; font-family: var(--font-head); cursor: pointer; border: 1px solid var(--border); background: var(--bg4); color: var(--text-muted); transition: var(--transition); }
+    .status-ctrl.active.available { background: rgba(45,157,107,0.15); color: var(--green-light); border-color: rgba(45,157,107,0.4); }
+    .status-ctrl.active.busy { background: rgba(244,162,97,0.15); color: var(--amber); border-color: rgba(244,162,97,0.4); }
+    .status-ctrl.active.offline { background: rgba(74,81,112,0.15); color: var(--text-muted); border-color: var(--border); }
+    .status-ctrl:hover { border-color: var(--border-hover); color: var(--text); }
+
+    /* ── EMPTY STATE ── */
+    .empty { padding: 24px; text-align: center; color: var(--text-dim); font-size: 13px; }
+    .empty .icon { font-size: 28px; margin-bottom: 8px; }
+
+    /* ── MOBILE ── */
+    @media(max-width: 768px) {
+      .dash-content { grid-template-columns: 1fr; }
+      .dash-sidebar { display: none; }
+      .dash-sidebar.show { display: flex; position: fixed; inset: 56px 0 0 0; z-index: 100; width: 100%; border-right: none; }
+      .role-grid { grid-template-columns: 1fr; }
+      .otp-grid { gap: 6px; }
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0; }
+    .info-row .label { color: var(--text-muted); }
+    .info-row .value { font-weight: 600; }
+    .tag { display: inline-block; background: var(--bg4); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; font-family: monospace; color: var(--text); }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+
+// ─── TOAST CONTEXT ─────────────────────────────────────────────────────────
+const ToastCtx = createContext(null);
+let toastId = 0;
+
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+  const add = useCallback((type, title, msg, duration = 4000) => {
+    const id = ++toastId;
+    setToasts(t => [...t, { id, type, title, msg }]);
+    setTimeout(() => remove(id), duration);
+    return id;
+  }, []);
+  const remove = useCallback((id) => {
+    setToasts(t => t.filter(x => x.id !== id));
+  }, []);
+  const icons = { success: '✅', error: '🚨', warning: '⚠️', info: 'ℹ️' };
+  return (
+    <ToastCtx.Provider value={{ success:(t,m)=>add('success',t,m), error:(t,m)=>add('error',t,m,5000), warning:(t,m)=>add('warning',t,m), info:(t,m)=>add('info',t,m) }}>
+      {children}
+      <div className="toast-container">
+        {toasts.map(t => (
+          <div key={t.id} className={`toast ${t.type}`}>
+            <span className="toast-icon">{icons[t.type]}</span>
+            <div className="toast-body">
+              <div className="toast-title">{t.title}</div>
+              {t.msg && <div className="toast-msg">{t.msg}</div>}
+            </div>
+            <button className="toast-close" onClick={() => remove(t.id)}>×</button>
+          </div>
+        ))}
+      </div>
+    </ToastCtx.Provider>
+  );
+}
+const useToast = () => useContext(ToastCtx);
+
+// ─── MOCK API ───────────────────────────────────────────────────────────────
+// In production: replace with real fetch() calls to the Node.js backend.
+// Backend base URL: http://localhost:5000/api
+
+const MOCK_DELAY = 1000;
+const mockDelay = (ms = MOCK_DELAY) => new Promise(r => setTimeout(r, ms));
+
+// Mock database state (in-memory for demo)
+let mockAlerts = [];
+let mockDrivers = [
+  { id: 'd1', name: 'Murugan K.', ambulanceNumber: 'TN37 AB 1234', status: 'available', x: 47, y: 42 },
+  { id: 'd2', name: 'Rajan S.', ambulanceNumber: 'TN37 CD 5678', status: 'busy', x: 58, y: 55 },
+  { id: 'd3', name: 'Selvam P.', ambulanceNumber: 'TN37 EF 9012', status: 'available', x: 38, y: 61 },
+];
+
+const API = {
+  async sendOTP(data) {
+    await mockDelay();
+    return { success: true, userId: 'mock_' + Date.now(), devOtp: '123456', note: 'Mock OTP: use 123456' };
+  },
+  async verifyOTP({ userId, otp }) {
+    await mockDelay(800);
+    if (otp !== '123456') return { success: false, message: 'Invalid OTP. Use 123456 for demo.' };
+    const role = userId.startsWith ? (window._pendingRole || 'civilian') : 'civilian';
+    return {
+      success: true, token: 'mock_token_' + Date.now(),
+      user: { id: userId, name: window._pendingName || 'User', mobile: window._pendingMobile || '9999999999', role: window._pendingRole || 'civilian', ambulanceNumber: window._pendingAmb || null, status: 'available', isVerified: true },
+    };
+  },
+  async getDrivers() {
+    await mockDelay(300);
+    return { success: true, drivers: mockDrivers };
+  },
+  async sendSOS({ longitude, latitude }) {
+    await mockDelay(600);
+    const alert = { id: 'alert_' + Date.now(), status: 'pending', createdAt: new Date().toISOString(), location: { coordinates: [longitude, latitude] } };
+    mockAlerts.unshift(alert);
+    // Simulate driver accepting after 3s
+    setTimeout(() => { window.__simulateAccept && window.__simulateAccept(alert.id); }, 3000);
+    return { success: true, alert };
+  },
+  async acceptAlert(id) {
+    await mockDelay(400);
+    return { success: true, message: 'Alert accepted.' };
+  },
+  async rejectAlert(id) {
+    await mockDelay(400);
+    return { success: true, message: 'Alert rejected.' };
+  },
+  async updateStatus(status) {
+    await mockDelay(300);
+    return { success: true };
+  },
+};
+
+// ─── MAP COMPONENT (OpenStreetMap iframe or mock) ───────────────────────────
+function KarurMap({ drivers, userRole, onSOSClick, sosState, userLocation }) {
+  const [hovered, setHovered] = useState(null);
+
+  // Karur city landmarks positions (as % on the mock map)
+  const landmarks = [
+    { label: 'Karur Town', x: 50, y: 50 },
+    { label: 'Govt. Hospital', x: 44, y: 38 },
+    { label: 'Bus Stand', x: 56, y: 44 },
+    { label: 'Collectorate', x: 48, y: 58 },
+  ];
+
+  return (
+    <div className="map-mock">
+      <div className="map-grid-lines" />
+      {/* SVG roads */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.18 }}>
+        <line x1="0%" y1="50%" x2="100%" y2="50%" stroke="#6678a0" strokeWidth="3" />
+        <line x1="50%" y1="0%" x2="50%" y2="100%" stroke="#6678a0" strokeWidth="3" />
+        <line x1="20%" y1="20%" x2="80%" y2="80%" stroke="#4a5580" strokeWidth="1.5" />
+        <line x1="80%" y1="20%" x2="20%" y2="80%" stroke="#4a5580" strokeWidth="1.5" />
+        <ellipse cx="50%" cy="50%" rx="15%" ry="12%" stroke="#6678a0" strokeWidth="1.5" fill="none" />
+        <line x1="30%" y1="0%" x2="70%" y2="100%" stroke="#4a5580" strokeWidth="1" strokeDasharray="4,4" />
+      </svg>
+
+      {/* Landmark labels */}
+      {landmarks.map(l => (
+        <div key={l.label} className="map-label" style={{ left: l.x + '%', top: l.y + '%', transform: 'translate(-50%,-50%)' }}>
+          {l.label}
+        </div>
+      ))}
+
+      {/* Karur center marker */}
+      <div className="map-center-marker">
+        <div className="map-pulse" />
+        <div className="map-center-label">📍 Karur, TN</div>
+      </div>
+
+      {/* Ambulance markers */}
+      {drivers.map(d => (
+        <div key={d.id} className="amb-marker" style={{ left: d.x + '%', top: d.y + '%' }}
+          onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
+          <div className={`dot ${d.status}`}>🚑</div>
+          <div className="tooltip">
+            <strong>{d.ambulanceNumber}</strong><br/>{d.name}<br/>
+            <span style={{ color: d.status === 'available' ? 'var(--green-light)' : 'var(--amber)' }}>{d.status.toUpperCase()}</span>
+          </div>
+        </div>
+      ))}
+
+      {/* User location (civilian) */}
+      {userRole === 'civilian' && userLocation && (
+        <div style={{ position: 'absolute', left: '50%', top: '53%', transform: 'translate(-50%,-50%)' }}>
+          <div style={{ width: 14, height: 14, background: '#4488ff', borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 10px #4488ff' }} />
+        </div>
+      )}
+
+      {/* Map attribution */}
+      <div style={{ position: 'absolute', bottom: 8, right: 8, fontSize: 10, color: 'var(--text-dim)', background: 'rgba(0,0,0,0.5)', padding: '2px 6px', borderRadius: 4 }}>
+        Karur, Tamil Nadu 📍 10.9601°N 78.0766°E
+      </div>
+
+      {/* Integrate real map note */}
+      <div style={{ position: 'absolute', top: 8, left: 8, fontSize: 10, color: 'var(--text-dim)', background: 'rgba(0,0,0,0.6)', padding: '3px 8px', borderRadius: 4, border: '1px solid var(--border)' }}>
+        🗺 Mock Map — Replace with Google Maps / Leaflet
+      </div>
+    </div>
+  );
+}
+
+// ─── LANDING / ROLE SELECT ──────────────────────────────────────────────────
+function LandingPage({ onSelectRole }) {
+  return (
+    <div className="landing">
+      <div className="landing-bg" />
+      <div className="landing-grid" />
+      <div className="landing-inner">
+        <div className="brand">
+          <div className="brand-icon">🚑</div>
+          <div className="brand-text">
+            <h1>Karur Emergency<br/>Ambulance Portal</h1>
+            <span>Karur · Tamil Nadu · Emergency Services</span>
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-title">Access Portal</div>
+          <div className="card-sub">Select your role to continue. OTP verification required for all users.</div>
+          <div className="role-grid">
+            <button className="role-btn" onClick={() => onSelectRole('driver')}>
+              <span className="icon">👨‍⚕️</span>
+              <span className="label">Ambulance Driver</span>
+              <span className="desc">Register vehicle, receive emergency alerts, update location</span>
+            </button>
+            <button className="role-btn" onClick={() => onSelectRole('civilian')}>
+              <span className="icon">🆘</span>
+              <span className="label">Civilian</span>
+              <span className="desc">Track ambulances, send SOS emergency alerts instantly</span>
+            </button>
+          </div>
+        </div>
+        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 12, color: 'var(--text-dim)' }}>
+          Emergency? Call <strong style={{ color: 'var(--red)' }}>108</strong> immediately
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── LOGIN FORM ─────────────────────────────────────────────────────────────
+function LoginForm({ role, onSuccess, onBack }) {
+  const toast = useToast();
+  const [step, setStep] = useState('form'); // form | otp
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ name: '', mobile: '', ambulanceNumber: '' });
+  const [userId, setUserId] = useState(null);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const otpRefs = useRef([]);
+  const isDriver = role === 'driver';
+
+  const handleSendOTP = async () => {
+    if (!form.name.trim()) return toast.error('Validation', 'Please enter your name.');
+    if (!/^[6-9]\d{9}$/.test(form.mobile)) return toast.error('Validation', 'Enter a valid 10-digit mobile number.');
+    if (isDriver && !form.ambulanceNumber.trim()) return toast.error('Validation', 'Ambulance number is required for drivers.');
+
+    setLoading(true);
+    // Store for mock API
+    window._pendingRole = role; window._pendingName = form.name;
+    window._pendingMobile = form.mobile; window._pendingAmb = form.ambulanceNumber;
+
+    try {
+      const res = await API.sendOTP({ ...form, role });
+      if (res.success) {
+        setUserId(res.userId);
+        setStep('otp');
+        toast.success('OTP Sent', `Verification code sent to +91${form.mobile}`);
+        if (res.note) toast.info('Dev Mode', res.note);
+      } else {
+        toast.error('Error', res.message);
+      }
+    } finally { setLoading(false); }
+  };
+
+  const handleOTPChange = (i, val) => {
+    if (!/^\d?$/.test(val)) return;
+    const next = [...otp]; next[i] = val;
+    setOtp(next);
+    if (val && i < 5) otpRefs.current[i + 1]?.focus();
+  };
+
+  const handleOTPKeyDown = (i, e) => {
+    if (e.key === 'Backspace' && !otp[i] && i > 0) otpRefs.current[i - 1]?.focus();
+  };
+
+  const handleVerifyOTP = async () => {
+    const code = otp.join('');
+    if (code.length !== 6) return toast.error('Validation', 'Enter the complete 6-digit OTP.');
+    setLoading(true);
+    try {
+      const res = await API.verifyOTP({ userId, otp: code });
+      if (res.success) {
+        toast.success('Verified!', `Welcome, ${res.user.name}`);
+        onSuccess(res.user, res.token);
+      } else {
+        toast.error('OTP Failed', res.message);
+        setOtp(['', '', '', '', '', '']);
+        otpRefs.current[0]?.focus();
+      }
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="landing">
+      <div className="landing-bg" />
+      <div className="landing-grid" />
+      <div className="landing-inner">
+        <button className="back-link" onClick={onBack}>← Back to role selection</button>
+        <div className="card">
+          {step === 'form' ? (
+            <>
+              <div className="form-header">
+                <h2>{isDriver ? '🚑 Driver Registration' : '🆘 Civilian Login'}</h2>
+                <p>{isDriver ? 'Register your ambulance and receive emergency alerts' : 'Login to track ambulances and send SOS alerts'}</p>
+              </div>
+              <div className="field">
+                <label>Full Name</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Enter your full name" />
+              </div>
+              <div className="field">
+                <label>Mobile Number</label>
+                <div className="prefix-wrap">
+                  <span className="prefix-label">+91</span>
+                  <input className="prefix" value={form.mobile} onChange={e => setForm({ ...form, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })} placeholder="9876543210" inputMode="numeric" />
+                </div>
+              </div>
+              {isDriver && (
+                <div className="field">
+                  <label>Ambulance Number</label>
+                  <input value={form.ambulanceNumber} onChange={e => setForm({ ...form, ambulanceNumber: e.target.value.toUpperCase() })} placeholder="TN37 AB 1234" />
+                </div>
+              )}
+              <button className="btn btn-primary" onClick={handleSendOTP} disabled={loading}>
+                {loading ? <><span className="spinner" /> Sending OTP...</> : 'Send OTP →'}
+              </button>
+              <div className="mock-note">
+                🔧 <strong>Demo Mode:</strong> OTP will always be <strong>123456</strong>. No real SMS sent.
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="form-header">
+                <h2>Enter OTP</h2>
+                <p>6-digit code sent to +91{form.mobile}</p>
+              </div>
+              <div className="field">
+                <label>Verification Code</label>
+                <div className="otp-grid">
+                  {otp.map((v, i) => (
+                    <input key={i} ref={el => otpRefs.current[i] = el} className="otp-cell" maxLength={1} value={v}
+                      onChange={e => handleOTPChange(i, e.target.value)}
+                      onKeyDown={e => handleOTPKeyDown(i, e)} inputMode="numeric" />
+                  ))}
+                </div>
+              </div>
+              <button className="btn btn-primary" onClick={handleVerifyOTP} disabled={loading}>
+                {loading ? <><span className="spinner" /> Verifying...</> : 'Verify & Login →'}
+              </button>
+              <button className="btn btn-ghost" onClick={() => { setStep('form'); setOtp(['','','','','','']); }}>
+                ← Change Number
+              </button>
+              <div className="mock-note">💡 Demo OTP: <strong>1 2 3 4 5 6</strong></div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── DRIVER DASHBOARD ───────────────────────────────────────────────────────
+function DriverDashboard({ user, onLogout }) {
+  const toast = useToast();
+  const [driverStatus, setDriverStatus] = useState(user.status || 'available');
+  const [alerts, setAlerts] = useState([
+    { id: 'a1', civilianName: 'Kavitha M.', civilianMobile: '9876543210', location: { address: 'Near Kovai Rd, Karur' }, createdAt: new Date(Date.now() - 120000).toISOString(), status: 'pending' },
+    { id: 'a2', civilianName: 'Ravi S.', civilianMobile: '8765432109', location: { address: 'Jawahar Bazaar, Karur' }, createdAt: new Date(Date.now() - 360000).toISOString(), status: 'pending' },
+  ]);
+  const [drivers, setDrivers] = useState(mockDrivers);
+  const [acceptedAlert, setAcceptedAlert] = useState(null);
+
+  // Simulate incoming SOS
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const newAlert = { id: 'a_live_' + Date.now(), civilianName: 'Priya K.', civilianMobile: '7654321098', location: { address: 'Erode Bypass, Karur' }, createdAt: new Date().toISOString(), status: 'pending' };
+      setAlerts(a => [newAlert, ...a]);
+      toast.error('🆘 New SOS Alert!', `Emergency from ${newAlert.civilianName} — ${newAlert.location.address}`);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleStatus = async (s) => {
+    setDriverStatus(s);
+    await API.updateStatus(s);
+    toast.info('Status Updated', `You are now ${s.toUpperCase()}`);
+  };
+
+  const handleAccept = async (alert) => {
+    await API.acceptAlert(alert.id);
+    setAlerts(a => a.filter(x => x.id !== alert.id));
+    setAcceptedAlert(alert);
+    setDriverStatus('busy');
+    toast.success('Alert Accepted', `Navigating to ${alert.civilianName}`);
+  };
+
+  const handleReject = async (id) => {
+    await API.rejectAlert(id);
+    setAlerts(a => a.filter(x => x.id !== id));
+    toast.warning('Alert Rejected', 'The civilian will be notified.');
+  };
+
+  const handleComplete = () => {
+    setAcceptedAlert(null);
+    setDriverStatus('available');
+    toast.success('Case Completed', 'You are now available for new alerts.');
+  };
+
+  const timeAgo = (iso) => {
+    const secs = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (secs < 60) return `${secs}s ago`;
+    if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+    return `${Math.floor(secs / 3600)}h ago`;
+  };
+
+  return (
+    <div className="dashboard">
+      <div className="topbar">
+        <div className="topbar-brand">
+          <div className="icon">🚑</div>
+          <span className="name">Karur Ambulance</span>
+        </div>
+        <div className="topbar-right">
+          <span className="topbar-user"><strong>{user.name}</strong> · Driver</span>
+          <span className={`status-badge ${driverStatus}`}>
+            <span className={`status-dot ${driverStatus}`} />{driverStatus}
+          </span>
+          <button className="btn btn-ghost btn-sm" onClick={onLogout}>Logout</button>
+        </div>
+      </div>
+
+      <div className="dash-content">
+        {/* Sidebar */}
+        <div className="dash-sidebar">
+          {/* Driver Info */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">My Vehicle</div>
+            <div className="info-row"><span className="label">Ambulance No.</span><span className="tag">{user.ambulanceNumber || 'TN37 XX 0000'}</span></div>
+            <div className="info-row"><span className="label">Mobile</span><span className="value">+91 {user.mobile}</span></div>
+            <div className="divider" />
+            <div className="sidebar-section-title">Set Status</div>
+            <div className="status-controls">
+              {['available', 'busy', 'offline'].map(s => (
+                <button key={s} className={`status-ctrl ${driverStatus === s ? 'active ' + s : ''}`} onClick={() => handleStatus(s)}>
+                  {s === 'available' ? '🟢' : s === 'busy' ? '🟡' : '⚫'} {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Assignment */}
+          {acceptedAlert && (
+            <div className="sidebar-section">
+              <div className="sidebar-section-title" style={{ color: 'var(--green-light)' }}>🚨 Active Assignment</div>
+              <div className="alert-card" style={{ borderColor: 'var(--green)', background: 'rgba(45,157,107,0.06)' }}>
+                <div className="alert-header">
+                  <div className="alert-name">👤 {acceptedAlert.civilianName}</div>
+                </div>
+                <div className="alert-loc">📍 {acceptedAlert.location?.address || 'Karur'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
+                  Civilian notified: "🚑 Ambulance is on the way, please clear the path"
+                </div>
+                <button className="btn btn-green btn-sm" onClick={handleComplete}>✅ Mark Completed</button>
+              </div>
+            </div>
+          )}
+
+          {/* Pending Alerts */}
+          <div className="sidebar-section" style={{ flex: 1 }}>
+            <div className="sidebar-section-title">
+              Pending SOS Alerts
+              {alerts.length > 0 && <span style={{ marginLeft: 6, background: 'var(--red)', color: '#fff', borderRadius: '10px', padding: '1px 7px', fontSize: 10 }}>{alerts.length}</span>}
+            </div>
+            {alerts.length === 0 ? (
+              <div className="empty"><div className="icon">📡</div>No pending alerts</div>
+            ) : alerts.map(a => (
+              <div key={a.id} className="alert-card sos" style={{ marginBottom: 10 }}>
+                <div className="alert-header">
+                  <div className="alert-name">🆘 {a.civilianName}</div>
+                  <div className="alert-time">{timeAgo(a.createdAt)}</div>
+                </div>
+                <div className="alert-loc">📍 {a.location?.address || 'Karur'}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>📞 +91 {a.civilianMobile}</div>
+                <div className="alert-actions">
+                  <button className="btn-accept" onClick={() => handleAccept(a)}>✅ Accept</button>
+                  <button className="btn-reject" onClick={() => handleReject(a.id)}>❌ Reject</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Map */}
+        <div className="dash-map">
+          <KarurMap drivers={drivers} userRole="driver" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── CIVILIAN DASHBOARD ─────────────────────────────────────────────────────
+function CivilianDashboard({ user, onLogout }) {
+  const toast = useToast();
+  const [drivers, setDrivers] = useState([]);
+  const [loadingDrivers, setLoadingDrivers] = useState(true);
+  const [sosState, setSosState] = useState('idle'); // idle | sending | sent | accepted
+  const [alertInfo, setAlertInfo] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    API.getDrivers().then(r => {
+      if (r.success) setDrivers(r.drivers);
+      setLoadingDrivers(false);
+    });
+    // Refresh every 10s
+    const t = setInterval(() => API.getDrivers().then(r => r.success && setDrivers(r.drivers)), 10000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown(c => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
+
+  // Simulate driver accepting (mock WebSocket)
+  window.__simulateAccept = (alertId) => {
+    setSosState('accepted');
+    setAlertInfo(prev => prev ? { ...prev, driverName: 'Murugan K.', ambulanceNumber: 'TN37 AB 1234', message: '🚑 Ambulance is on the way! Please clear the path.' } : prev);
+    toast.success('Help is Coming!', 'A driver has accepted your SOS alert!');
+  };
+
+  const handleSOS = async () => {
+    if (sosState !== 'idle' || cooldown > 0) return;
+    setSosState('sending');
+    try {
+      // Use mock coords near Karur center
+      const res = await API.sendSOS({ longitude: 78.0766, latitude: 10.9601 });
+      if (res.success) {
+        setSosState('sent');
+        setAlertInfo({ id: res.alert.id, sentAt: new Date().toISOString() });
+        setCooldown(120); // 2 minute cooldown
+        toast.error('🆘 SOS Sent!', 'Emergency alert sent to all nearby drivers');
+      } else {
+        setSosState('idle');
+        toast.error('Failed', res.message || 'Could not send alert. Try again.');
+      }
+    } catch {
+      setSosState('idle');
+      toast.error('Error', 'Network error. Check your connection.');
+    }
+  };
+
+  const handleCancel = () => {
+    setSosState('idle');
+    setAlertInfo(null);
+    toast.info('Alert Cancelled', 'Your SOS has been cancelled.');
+  };
+
+  const available = drivers.filter(d => d.status === 'available').length;
+  const busy = drivers.filter(d => d.status === 'busy').length;
+
+  return (
+    <div className="dashboard">
+      <div className="topbar">
+        <div className="topbar-brand">
+          <div className="icon">🚑</div>
+          <span className="name">Karur Ambulance</span>
+        </div>
+        <div className="topbar-right">
+          <span className="topbar-user"><strong>{user.name}</strong> · Civilian</span>
+          <button className="btn btn-ghost btn-sm" onClick={onLogout}>Logout</button>
+        </div>
+      </div>
+
+      <div className="dash-content">
+        {/* Sidebar */}
+        <div className="dash-sidebar">
+          {/* SOS Panel */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Emergency SOS</div>
+            <div className="sos-section">
+              <button className="sos-btn" onClick={handleSOS}
+                disabled={sosState !== 'idle' || cooldown > 0}>
+                <span className="sos-icon">{sosState === 'sending' ? '⏳' : '🆘'}</span>
+                {sosState === 'sending' ? 'Sending...' : cooldown > 0 ? `${cooldown}s` : 'SOS'}
+              </button>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+                {cooldown > 0 ? `Wait ${cooldown}s to send another alert` : 'Tap to send emergency alert to all nearby drivers'}
+              </div>
+            </div>
+
+            {/* SOS Status */}
+            {sosState === 'sent' && !alertInfo?.driverName && (
+              <div className="sos-status-box sent">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 18 }}>📡</span>
+                  <strong style={{ fontSize: 13 }}>Alert Sent!</strong>
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Waiting for a driver to accept... <span className="spinner" style={{ width: 12, height: 12, verticalAlign: 'middle' }} /></div>
+                <button className="btn btn-ghost btn-sm" style={{ marginTop: 10 }} onClick={handleCancel}>Cancel Alert</button>
+              </div>
+            )}
+
+            {sosState === 'accepted' && alertInfo?.driverName && (
+              <div className="sos-status-box accepted">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 20 }}>🚑</span>
+                  <strong style={{ color: 'var(--green-light)', fontSize: 14 }}>Help is Coming!</strong>
+                </div>
+                <div style={{ fontSize: 13, marginBottom: 4 }}><strong>{alertInfo.driverName}</strong></div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Ambulance: <span className="tag">{alertInfo.ambulanceNumber}</span></div>
+                <div style={{ fontSize: 12, marginTop: 8, padding: '8px 10px', background: 'rgba(45,157,107,0.1)', borderRadius: 6, color: 'var(--green-light)' }}>
+                  "{alertInfo.message}"
+                </div>
+                <button className="btn btn-ghost btn-sm" style={{ marginTop: 10 }} onClick={() => { setSosState('idle'); setAlertInfo(null); }}>
+                  ✅ Close
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Fleet Overview */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Fleet Status</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <div style={{ flex: 1, background: 'rgba(45,157,107,0.1)', border: '1px solid rgba(45,157,107,0.2)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--green-light)', fontFamily: 'var(--font-head)' }}>{available}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Available</div>
+              </div>
+              <div style={{ flex: 1, background: 'rgba(244,162,97,0.1)', border: '1px solid rgba(244,162,97,0.2)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--amber)', fontFamily: 'var(--font-head)' }}>{busy}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>On Call</div>
+              </div>
+            </div>
+            {loadingDrivers ? (
+              <div className="full-loader"><span className="spinner" /> Loading drivers...</div>
+            ) : drivers.length === 0 ? (
+              <div className="empty"><div className="icon">🚑</div>No drivers online</div>
+            ) : drivers.map(d => (
+              <div key={d.id} className="driver-item">
+                <div className="driver-avatar">🚑</div>
+                <div className="driver-info">
+                  <div className="driver-name">{d.name}</div>
+                  <div className="driver-amb">{d.ambulanceNumber}</div>
+                </div>
+                <span className={`status-badge ${d.status}`}>{d.status}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Emergency contacts */}
+          <div className="sidebar-section" style={{ marginTop: 'auto' }}>
+            <div className="sidebar-section-title">Emergency Numbers</div>
+            <div className="info-row"><span className="label">Ambulance</span><strong style={{ color: 'var(--red)' }}>108</strong></div>
+            <div className="info-row"><span className="label">Police</span><strong style={{ color: 'var(--red)' }}>100</strong></div>
+            <div className="info-row"><span className="label">Fire</span><strong style={{ color: 'var(--red)' }}>101</strong></div>
+          </div>
+        </div>
+
+        {/* Map */}
+        <div className="dash-map">
+          <KarurMap drivers={drivers} userRole="civilian" sosState={sosState} userLocation={{ lat: 10.9601, lng: 78.0766 }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ROOT ───────────────────────────────────────────────────────────────
+function App() {
+  const [screen, setScreen] = useState('landing'); // landing | login | dashboard
+  const [role, setRole] = useState(null);
+  const [user, setUser] = useState(null);
+
+  const handleSelectRole = (r) => { setRole(r); setScreen('login'); };
+  const handleLogin = (u, token) => {
+    setUser(u);
+    // In production: localStorage.setItem('token', token);
+    setScreen('dashboard');
+  };
+  const handleLogout = () => { setUser(null); setRole(null); setScreen('landing'); };
+
+  return (
+    <div className="app">
+      {screen === 'landing' && <LandingPage onSelectRole={handleSelectRole} />}
+      {screen === 'login' && <LoginForm role={role} onSuccess={handleLogin} onBack={() => setScreen('landing')} />}
+      {screen === 'dashboard' && user?.role === 'driver' && <DriverDashboard user={user} onLogout={handleLogout} />}
+      {screen === 'dashboard' && user?.role === 'civilian' && <CivilianDashboard user={user} onLogout={handleLogout} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <ToastProvider><App /></ToastProvider>
+);
+</script>
+</body>
+</html>
